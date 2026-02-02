@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valentine's Day Question</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffd1dc 0%, #ffb3c1 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(255, 105, 180, 0.3);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        h1 {
+            color: #ff1493;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .heart {
+            font-size: 4em;
+            margin-bottom: 20px;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            margin-top: 30px;
+            min-height: 80px;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        #yesBtn {
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff1493 100%);
+            color: white;
+            box-shadow: 0 5px 20px rgba(255, 20, 147, 0.4);
+            position: relative;
+        }
+
+        #yesBtn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(255, 20, 147, 0.6);
+        }
+
+        #noBtn {
+            background: #e0e0e0;
+            color: #666;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        #noBtn:hover {
+            background: #d0d0d0;
+        }
+
+        #noBtn.moving {
+            position: fixed;
+        }
+
+        .celebration {
+            display: none;
+        }
+
+        .celebration.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .celebration h2 {
+            color: #ff1493;
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .celebration p {
+            font-size: 1.3em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .hearts-fall {
+            position: fixed;
+            top: -10%;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .falling-heart {
+            position: absolute;
+            font-size: 2em;
+            animation: fall linear infinite;
+            opacity: 0.8;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(110vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .gif-container {
+            margin-top: 30px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .gif-container img {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="question" class="question-screen">
+            <div class="heart">💖</div>
+            <h1>Will you be my Valentine?</h1>
+            <div class="buttons">
+                <button id="yesBtn">Yes! 💕</button>
+                <button id="noBtn">No</button>
+            </div>
+        </div>
+
+        <div id="celebration" class="celebration">
+            <div class="heart">💖</div>
+            <h2>YAY! 🎉</h2>
+            <p>I knew you'd say yes!</p>
+            <div class="heart">❤️ 💕 💖 💗 💝</div>
+            <div class="gif-container">
+                <img src="<img src="https://media.tenor.com/gUiu1zyxfzYAAAAi/bear-kiss-bear-kisses.gif"" 
+                     alt="Happy celebration" 
+                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22300%22%3E%3Crect fill=%22%23ffb3c1%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2260%22 text-anchor=%22middle%22 dy=%22.3em%22%3E🎊💖🎉%3C/text%3E%3C/svg%3E'">
+            </div>
+        </div>
+    </div>
+
+    <div class="hearts-fall" id="heartsFall"></div>
+
+    <script>
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const questionScreen = document.getElementById('question');
+        const celebrationScreen = document.getElementById('celebration');
+        const heartsFall = document.getElementById('heartsFall');
+
+        // Track the scale of the no button
+        let noBtnScale = 1;
+        const shrinkAmount = 0.05; // Shrink by only 2% each time (much more subtle)
+        const minScale = 0.5; // Stop at 50% of original size (much bigger minimum)
+
+        // Function to move the "No" button
+        function moveNoButton() {
+            // Shrink the button only if it's still bigger than the minimum
+            if (noBtnScale > minScale) {
+                noBtnScale -= shrinkAmount;
+                // Make sure we don't go below the minimum
+                noBtnScale = Math.max(noBtnScale, minScale);
+                noBtn.style.transform = `scale(${noBtnScale})`;
+            }
+
+            // Add the "moving" class to make it position: fixed
+            noBtn.classList.add('moving');
+            
+            // Calculate random position within the viewport
+            const maxX = window.innerWidth - (noBtn.offsetWidth * noBtnScale) - 40;
+            const maxY = window.innerHeight - (noBtn.offsetHeight * noBtnScale) - 40;
+            
+            const randomX = Math.max(20, Math.random() * maxX);
+            const randomY = Math.max(20, Math.random() * maxY);
+            
+            noBtn.style.left = randomX + 'px';
+            noBtn.style.top = randomY + 'px';
+        }
+
+        // Detect mouse movement near the "No" button
+        noBtn.addEventListener('mouseenter', moveNoButton);
+        noBtn.addEventListener('mousemove', moveNoButton);
+        
+        // Also move on touch for mobile
+        noBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            moveNoButton();
+        });
+
+        // "Yes" button click handler
+        yesBtn.addEventListener('click', () => {
+            questionScreen.style.display = 'none';
+            celebrationScreen.classList.add('active');
+            createFallingHearts();
+        });
+
+        // Create falling hearts animation
+        function createFallingHearts() {
+            const heartEmojis = ['❤️', '💕', '💖', '💗', '💝', '💘'];
+            
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.className = 'falling-heart';
+                    heart.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+                    heart.style.left = Math.random() * 100 + '%';
+                    heart.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    heart.style.animationDelay = Math.random() * 2 + 's';
+                    heartsFall.appendChild(heart);
+                    
+                    // Remove heart after animation
+                    setTimeout(() => heart.remove(), 5000);
+                }, i * 100);
+            }
+        }
+    </script>
+</body>
+</html>
